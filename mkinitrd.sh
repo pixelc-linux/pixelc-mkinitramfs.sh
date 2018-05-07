@@ -50,7 +50,7 @@ cp -R firmware out/lib
 # create the ramdisk
 echo "Creating initrd..."
 cd out
-find . | cpio -o -c -H newc > ../initrd.img
+find . | cpio -o -H newc > ../initrd.img
 cd ..
 
 # cleanup
