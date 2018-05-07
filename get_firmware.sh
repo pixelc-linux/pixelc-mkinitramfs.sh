@@ -35,4 +35,8 @@ cp -R linux-firmware/nvidia/gm20b/* firmware/nvidia/gm20b
 # Tegra fw
 cp -R linux-firmware/nvidia/tegra210/* firmware/nvidia/tegra210
 
+# licenses
+cp linux-firmware/LICENCE.broadcom_bcm43xx firmware
+cp linux-firmware/LICENCE.nvidia firmware
+
 echo "Done getting firmware."
