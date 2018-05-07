@@ -6,8 +6,10 @@ export ROOTDEV=mmcblk0p7
 export ROOTDIR=
 export INIT=/sbin/init
 
-if [ ! -f "./busybox" ]; then
-    echo "Busybox binary missing, exitting..."
+# fetch busybox
+./get_busybox.sh
+if [ $? -ne 0 ]; then
+    echo "Failed getting busybox, exitting..."
     exit 1
 fi
 
