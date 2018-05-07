@@ -89,11 +89,11 @@ cp -R firmware out/lib
 # create the ramdisk
 echo "Creating initrd..."
 cd out
-find . | cpio -o -H newc > ../$OUTPUT
+find . | cpio -o -H newc > ../$OUTFILE
 cd ..
 
 # cleanup
 echo "Final cleanup..."
 rm -rf out
 
-echo "Initrd created: $OUTPUT"
+echo "Initrd created: $OUTFILE"
