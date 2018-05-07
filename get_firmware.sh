@@ -9,12 +9,11 @@ if [ -d "firmware" ]; then
     exit 0
 fi
 
-if [ ! -x "$(command -v git)" ]; then
-    echo "Git is not installed, exitting..."
-    exit 1
-fi
-
 if [ ! -d "linux-firmware" ]; then
+    if [ ! -x "$(command -v git)" ]; then
+        echo "Git is not installed, exitting..."
+        exit 1
+    fi
     git clone --depth 1 "$FIRMWARE_GIT" linux-firmware
     if [ $? -ne 0 ]; then
         echo "Git failed, exitting..."
