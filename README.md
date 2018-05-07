@@ -11,6 +11,5 @@ Before doing that, you will want to place a busybox binary for ARM in the
 current directory. This git repository does not distribute binaries, so do
 that yourself. The script will take care of putting it in the right place.
 
-You will probably want to put firmware for Bluetooth and Tegra in the initrd.
-Therefore, create a `lib/firmware` directory with the right files before
-running the script.
+The script automatically downloads the necessary firmware to be included in
+the ramdisk (bluetooth and nvidia).
