@@ -52,6 +52,6 @@ cd ..
 
 # cleanup
 echo "Final cleanup..."
-#rm -rf out
+rm -rf out
 
 echo "Initrd created: initrd.img"
