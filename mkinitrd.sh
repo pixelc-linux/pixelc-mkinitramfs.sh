@@ -81,7 +81,7 @@ export INIT="${INIT}"
 EOF
 
 echo "Copying binaries..."
-cp init busybox out
+cp skel/init busybox out
 
 echo "Copying firmware..."
 cp -R firmware out/lib

@@ -26,7 +26,7 @@ mkdir -p firmware/nvidia/gm20b
 mkdir -p firmware/nvidia/tegra210
 
 # Broadcom fw
-cp brcmfmac4354* firmware/brcm
+cp skel/brcmfmac4354* firmware/brcm
 cp linux-firmware/brcm/brcmfmac4354* firmware/brcm
 
 # Maxwell fw
