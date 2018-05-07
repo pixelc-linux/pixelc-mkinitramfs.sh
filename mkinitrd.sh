@@ -22,6 +22,7 @@ fi
 
 # cleanup
 echo "Cleanup..."
+rm -f initrd.img
 rm -rf out
 
 # pre-populate ramdisk structure

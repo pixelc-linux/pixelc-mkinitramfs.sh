@@ -5,11 +5,14 @@ the root filesystem and switches to it.
 
 To use, simply exec:
 
-   ./mkinitrd.sh
+```
+./mkinitrd.sh
+```
 
-Before doing that, you will want to place a busybox binary for ARM in the
-current directory. This git repository does not distribute binaries, so do
-that yourself. The script will take care of putting it in the right place.
+The script will automatically fetch an appropriate Busybox binary as well
+as firmware for bluetooth and graphics/tegra.
 
-The script automatically downloads the necessary firmware to be included in
-the ramdisk (bluetooth and nvidia).
+You can prevent auto-fetching by placing the firmware in the "firmware"
+directory (create it) and busybox in the current directory. Otherwise, it
+will download firmware from linux-firmware.git and a static Busybox binary
+for aarch64 from Debian.
