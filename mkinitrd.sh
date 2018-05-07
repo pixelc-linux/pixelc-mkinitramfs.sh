@@ -1,10 +1,29 @@
 #!/bin/sh
 
-# root device
-export ROOTDEV=mmcblk0p7
-# directory on root device with the actual rootfs
-export ROOTDIR=
+while getopts d:s:o: opts; do
+  case ${opts} in
+    d) ROOTDEV=${OPTARG} ;;
+    s) ROOTDIR=${OPTARG} ;;
+    o) OUTPUT=${OPTARG} ;;
+  esac
+done
+
+if [ -z "$ROOTDEV" ]; then
+  ROOTDEV=mmcblk0p7
+fi
+
+if [ -z "$ROOTDIR" ]; then
+  ROOTDIR=
+fi
+
+if [ -z "$OUTPUT" ]; then
+  OUTPUT=initrd.img
+fi
+
 export INIT=/sbin/init
+
+echo "Root Device: $ROOTDEV"
+echo "Root Dir: $ROOTDIR"
 
 # fetch busybox
 ./get_busybox.sh
@@ -22,7 +41,7 @@ fi
 
 # cleanup
 echo "Cleanup..."
-rm -f initrd.img
+rm -f $OUTPUT
 rm -rf out
 
 # pre-populate ramdisk structure
@@ -50,11 +69,11 @@ cp -R firmware out/lib
 # create the ramdisk
 echo "Creating initrd..."
 cd out
-find . | cpio -o -H newc > ../initrd.img
+find . | cpio -o -H newc > ../$OUTPUT
 cd ..
 
 # cleanup
 echo "Final cleanup..."
 rm -rf out
 
-echo "Initrd created: initrd.img"
+echo "Initrd created: $OUTPUT"
