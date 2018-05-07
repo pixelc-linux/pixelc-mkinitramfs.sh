@@ -1,4 +1,7 @@
 firmware
 linux-firmware
 out
-initrd.img
+initrd*.img
+busybox
+
+
