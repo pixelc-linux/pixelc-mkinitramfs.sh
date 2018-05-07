@@ -4,17 +4,19 @@ FIRMWARE_GIT="git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmw
 
 echo "Getting firmware..."
 
+mkdir -p downloaded
+
 if [ -d "firmware" ]; then
     echo "Firmware already found, skipping..."
     exit 0
 fi
 
-if [ ! -d "linux-firmware" ]; then
+if [ ! -d "downloaded/linux-firmware" ]; then
     if [ ! -x "$(command -v git)" ]; then
         echo "Git is not installed, exitting..."
         exit 1
     fi
-    git clone --depth 1 "$FIRMWARE_GIT" linux-firmware
+    git clone --depth 1 "$FIRMWARE_GIT" downloaded/linux-firmware
     if [ $? -ne 0 ]; then
         echo "Git failed, exitting..."
         exit 1
@@ -27,16 +29,16 @@ mkdir -p firmware/nvidia/tegra210
 
 # Broadcom fw
 cp skel/brcmfmac4354* firmware/brcm
-cp linux-firmware/brcm/brcmfmac4354* firmware/brcm
+cp downloaded/linux-firmware/brcm/brcmfmac4354* firmware/brcm
 
 # Maxwell fw
-cp -R linux-firmware/nvidia/gm20b/* firmware/nvidia/gm20b
+cp -R downloaded/linux-firmware/nvidia/gm20b/* firmware/nvidia/gm20b
 
 # Tegra fw
-cp -R linux-firmware/nvidia/tegra210/* firmware/nvidia/tegra210
+cp -R downloaded/linux-firmware/nvidia/tegra210/* firmware/nvidia/tegra210
 
 # licenses
-cp linux-firmware/LICENCE.broadcom_bcm43xx firmware
-cp linux-firmware/LICENCE.nvidia firmware
+cp downloaded/linux-firmware/LICENCE.broadcom_bcm43xx firmware
+cp downloaded/linux-firmware/LICENCE.nvidia firmware
 
 echo "Done getting firmware."

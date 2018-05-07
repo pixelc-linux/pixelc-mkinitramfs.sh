@@ -61,39 +61,39 @@ fi
 
 # cleanup
 echo "Cleanup..."
-rm -f $OUTPUT
-rm -rf out
+rm -f $OUTFILE
+rm -rf output
 
 # pre-populate ramdisk structure
 echo "Creating directory structure..."
-mkdir out
-mkdir out/dev
-mkdir out/lib
-mkdir out/sys
-mkdir -p out/mnt/root
+mkdir output
+mkdir output/dev
+mkdir output/lib
+mkdir output/sys
+mkdir -p output/mnt/root
 
 # config file
 echo "Generating config file..."
-cat << EOF >> out/conf
+cat << EOF >> output/conf
 export ROOTDEV="${ROOTDEV}"
 export ROOTDIR="${ROOTDIR}"
 export INIT="${INIT}"
 EOF
 
 echo "Copying binaries..."
-cp skel/init busybox out
+cp skel/init downloaded/busybox output
 
 echo "Copying firmware..."
-cp -R firmware out/lib
+cp -R firmware output/lib
 
 # create the ramdisk
 echo "Creating initrd..."
-cd out
+cd output
 find . | cpio -o -H newc > ../$OUTFILE
 cd ..
 
 # cleanup
 echo "Final cleanup..."
-rm -rf out
+rm -rf output
 
 echo "Initrd created: $OUTFILE"

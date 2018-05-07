@@ -2,7 +2,9 @@
 
 BUSYBOX_DEB="http://ftp.debian.org/debian/pool/main/b/busybox/busybox-static_1.27.2-2_arm64.deb"
 
-if [ -f "./busybox" ]; then
+mkdir -p downloaded
+
+if [ -f "./downloaded/busybox" ]; then
     echo "Busybox already found, skipping..."
     exit 0
 fi
@@ -46,7 +48,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Moving busybox binary..."
-mv bin/busybox ..
+mv bin/busybox ../downloaded
 cd ..
 
 echo "Cleaning up temporary files..."
