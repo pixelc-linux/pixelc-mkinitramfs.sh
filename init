@@ -1,0 +1,18 @@
+#!/busybox sh
+
+# include config variables
+source /conf
+
+# only one binary - busybox
+export PATH=/
+
+# mdev requires /sys
+busybox mount -t sysfs none /sys
+busybox mount -t tmpfs none /dev
+busybox mdev -s
+
+# mount root, read only, OS will remount as necessary
+busybox mount -t ext4 -o ro "/dev/$ROOTDEV" /mnt/root
+
+# switch to new root
+exec busybox switch_root "/mnt/root/$ROOTDIR" "$INIT"
