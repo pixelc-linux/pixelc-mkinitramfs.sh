@@ -15,4 +15,4 @@ busybox mdev -s
 busybox mount -t ext4 -o ro "/dev/$ROOTDEV" /mnt/root
 
 # switch to new root
-exec busybox switch_root "/mnt/root/$ROOTDIR" "$INIT"
+exec busybox switch_root "/mnt/root$ROOTDIR" "$INIT"
