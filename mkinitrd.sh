@@ -45,9 +45,6 @@ echo "Generating initrd for rootfs in $ROOTDIR on partition" \
      "$ROOTDEV with init executable $INIT..."
 echo ""
 
-echo "Root Device: $ROOTDEV"
-echo "Root Dir: $ROOTDIR"
-
 # fetch busybox
 ./get_busybox.sh
 if [ $? -ne 0 ]; then
