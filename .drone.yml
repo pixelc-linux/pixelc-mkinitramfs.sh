@@ -1,0 +1,16 @@
+workspace:
+  base: /ramdisk
+  path: /mkinitrd
+pipeline:
+  build:
+    image: dvitali/android-build:feb-20
+    commands:
+      - "./mkinitrd.sh -d /dev/mmcblk0p4 -s / -o initrd_system.img"
+      - "./mkinitrd.sh -d /dev/mmcblk0p7 -s / -o initrd_data.img"
+      - "./mkinitrd.sh -d /dev/mmcblk0p7 -s /distro -o initrd_data_distro.img"
+  github_release:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    files: /ramdisk/mkinitrd/*.img
+    when:
+      event: tag
