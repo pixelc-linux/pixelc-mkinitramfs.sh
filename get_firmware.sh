@@ -24,6 +24,7 @@ if [ ! -d "downloaded/linux-firmware" ]; then
 fi
 
 mkdir -p firmware/brcm
+mkdir -p firmware/nvidia/gm200
 mkdir -p firmware/nvidia/gm20b
 mkdir -p firmware/nvidia/tegra210
 
@@ -32,6 +33,7 @@ cp skel/brcmfmac4354* firmware/brcm
 cp downloaded/linux-firmware/brcm/brcmfmac4354* firmware/brcm
 
 # Maxwell fw
+cp -R downloaded/linux-firmware/nvidia/gm200/* firmware/nvidia/gm200
 cp -R downloaded/linux-firmware/nvidia/gm20b/* firmware/nvidia/gm20b
 
 # Tegra fw
