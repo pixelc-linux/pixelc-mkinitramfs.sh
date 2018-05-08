@@ -24,7 +24,6 @@ if [ ! -d "downloaded/linux-firmware" ]; then
 fi
 
 mkdir -p firmware/brcm
-mkdir -p firmware/nvidia/gm200
 mkdir -p firmware/nvidia/gm20b
 mkdir -p firmware/nvidia/tegra210
 
@@ -33,8 +32,10 @@ cp skel/brcmfmac4354* firmware/brcm
 cp downloaded/linux-firmware/brcm/brcmfmac4354* firmware/brcm
 
 # Maxwell fw
-cp -R downloaded/linux-firmware/nvidia/gm200/* firmware/nvidia/gm200
 cp -R downloaded/linux-firmware/nvidia/gm20b/* firmware/nvidia/gm20b
+# this is a symlink so we need to expand that
+rm firmware/nvidia/gm20b/gr/sw_method_init.bin
+cp downloaded/linux-firmware/nvidia/gm200/gr/sw_method_init.bin firmware/nvidia/gm20b/gr
 
 # Tegra fw
 cp -R downloaded/linux-firmware/nvidia/tegra210/* firmware/nvidia/tegra210
