@@ -12,7 +12,21 @@ busybox mount -t tmpfs none /dev
 busybox mdev -s
 
 # mount root, read only, OS will remount as necessary
-busybox mount -t ext4 -o ro "/dev/$ROOTDEV" /mnt/root
+if [ -n "$ROOTDIR" ] && [ "$ROOTDIR" != "/" ]; then
+    # rootfs is in a subdirectory of the actual filesystem
+    # switch_root does not support non-mountpoints, so bind it
+    echo "Binding the rootfs into a directory is EXPERIMENTAL."
+    echo "Use at your own risk. Booting in 5 seconds..."
+    for x in $(busybox seq 5 1); do
+        echo "$x"
+        sleep 1
+    done
+    busybox mount -t ext4 -o "$MOUNTOPTS" "/dev/$ROOTDEV" /mnt/data
+    busybox mount -o bind "/mnt/data$ROOTDIR" /mnt/root
+else
+    # rootfs is the filesystem; mount directly
+    busybox mount -t ext4 -o "$MOUNTOPTS" "/dev/$ROOTDEV" /mnt/root
+fi
 
 # switch to new root
-exec busybox switch_root "/mnt/root$ROOTDIR" "$INIT"
+exec busybox switch_root "/mnt/root" "$INIT"
