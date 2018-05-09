@@ -77,6 +77,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # cleanup
+echo ""
 echo "Cleanup..."
 rm -f $OUTFILE
 rm -rf output
@@ -88,7 +89,7 @@ mkdir output/dev
 mkdir output/lib
 mkdir output/sys
 mkdir -p output/mnt/root
-mkdir -p outout/mnt/data
+mkdir -p output/mnt/data
 
 # config file
 echo "Generating config file..."
@@ -105,9 +106,15 @@ cp skel/init downloaded/busybox output
 echo "Copying firmware..."
 cp -R firmware output/lib
 
-# create the ramdisk
-echo "Creating initrd..."
+# list contents first
+echo ""
+echo "Initrd contents:"
 cd output
+find .
+
+# create the ramdisk
+echo ""
+echo "Creating initrd..."
 find . | cpio -o -H newc > ../$OUTFILE
 cd ..
 
