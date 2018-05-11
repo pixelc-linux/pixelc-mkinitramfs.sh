@@ -1,16 +1,16 @@
 workspace:
   base: /ramdisk
-  path: /mkinitrd
+  path: /mkinitramfs
 pipeline:
   build:
     image: dvitali/android-build:feb-20
     commands:
-      - "./mkinitrd.sh -d mmcblk0p4 -s / -o initrd_system.img"
-      - "./mkinitrd.sh -d mmcblk0p7 -s / -o initrd_data.img"
-      - "./mkinitrd.sh -d mmcblk0p7 -s /rootfs -o initrd_data_distro.img"
+      - "./mkinitramfs.sh -d mmcblk0p4 -s / -o initramfs_system.cpio"
+      - "./mkinitramfs.sh -d mmcblk0p7 -s / -o initramfs_data.cpio"
+      - "./mkinitramfs.sh -d mmcblk0p7 -s /rootfs -o initramfs_data_distro.cpio"
   github_release:
     image: plugins/github-release
     secrets: [ github_token ]
-    files: /ramdisk/mkinitrd/*.img
+    files: /ramdisk/mkinitramfs/*.img
     when:
       event: tag
