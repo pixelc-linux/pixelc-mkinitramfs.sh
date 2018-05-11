@@ -6,7 +6,7 @@ the root filesystem and switches to it.
 To use, simply exec:
 
 ```
-./mkinitrd.sh
+./mkinitramfs.sh
 ```
 
 The script will automatically fetch an appropriate Busybox binary as well

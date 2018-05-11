@@ -9,19 +9,22 @@ MOUNTOPTS_RW="rw,noatime,nodirtime,errors=panic"
 MOUNTOPTS="ro"
 # the init program
 INIT="/sbin/init"
+# compression
+COMPRESSION="lz4"
 
 # output file name
-OUTFILE="initrd.img"
+OUTFILE="initramfs.cpio"
 
 help() {
     echo "Usage: " $0 " [arguments]"
     echo "Available options:"
     echo "  -h           print this message"
-    echo "  -o FILENAME  write into FILENAME (default: $OUTFILE)"
+    echo "  -o FILENAME  write into FILENAME (uncompressed, default: $OUTFILE)"
     echo "  -d DEVICE    the partition containing rootfs (default: $ROOTDEV)"
     echo "  -s PATH      the directory containing rootfs (default: $ROOTDIR)"
     echo "  -m PARAMS    the options passed to mount (default: $MOUNTOPTS)"
     echo "  -i INIT      the init program to launch (default: $INIT)"
+    echo "  -c COMP      the compression format (default: $COMPRESSION)"
     echo ""
     echo "By default, rootfs is on /data (mmcblk0p7), not in any subdir."
     echo "Keep in mind that using a subdirectory might not always work right"
@@ -35,9 +38,10 @@ help() {
     echo "filesystem is present. You might want to use this if you repartition"
     echo "your device or if you installed the OS into /system (mmdcblk0p4)."
     echo "Overriding -i is only for if your rootfs doesn't use /sbin/init."
+    echo "The choice of compression algorithmss is 'lz4', 'gz', 'xz', 'none'."
 }
 
-while getopts o:d:s:i:m:h OPT; do
+while getopts o:d:s:i:c:m:h OPT; do
     case $OPT in
         o) OUTFILE=$OPTARG ;;
         d) ROOTDEV=$OPTARG ;;
@@ -49,6 +53,7 @@ while getopts o:d:s:i:m:h OPT; do
         ;;
         m) MOUNTOPTS=$OPTARG ;;
         i) INIT=$OPTARG ;;
+        c) COMPRESSION=$OPTARG ;;
         h) help; exit 0 ;;
         \?)
             echo "Unrecognized option: $OPTARG"
@@ -58,7 +63,50 @@ while getopts o:d:s:i:m:h OPT; do
     esac
 done
 
-echo "Generating initrd for rootfs in $ROOTDIR on partition" \
+case $COMPRESSION in
+    none)
+        CMPCMD=""
+        OUTFILE_COMP="$OUTFILE"
+    ;;
+    lz4)
+        CMPCMD="lz4c"
+        OUTFILE_COMP="$OUTFILE.lz4"
+    ;;
+    gz)
+        CMPCMD="gzip"
+        OUTFILE_COMP="$OUTFILE.gz"
+    ;;
+    xz)
+        CMPCMD="xz"
+        OUTFILE_COMP="$OUTFILE.xz"
+    ;;
+    *)
+        echo "Unknown compression algorithm: $COMPRESSION"
+        help
+        exit 1
+esac
+
+compress() {
+    case $COMPRESSION in
+        lz4) lz4c "$1" "$2"      ;;
+        gz)  gzip -9 -c "$1" > "$2" ;;
+        xz)  xz -c "$1" > "$2"      ;;
+        *) true ;;
+    esac
+    if [ $? -ne 0 ]; then
+        echo "Compression failed, exitting..."
+        rm -f "$1" "$2"
+        rm -rf output
+        exit 1
+    fi
+}
+
+if [ -n "$CMPCMD" ] && [ ! -x "$(command -v $CMPCMD)" ]; then
+    echo "Compression tool '$CMPCMD' not found, exitting..."
+    exit 1
+fi
+
+echo "Generating initramfs for rootfs in $ROOTDIR on partition" \
      "$ROOTDEV (mounted with '$MOUNTOPTS') with init executable $INIT..."
 echo ""
 
@@ -79,7 +127,7 @@ fi
 # cleanup
 echo ""
 echo "Cleanup..."
-rm -f $OUTFILE
+rm -f "$OUTFILE" "$OUTFILE_COMP"
 rm -rf output
 
 # pre-populate ramdisk structure
@@ -108,18 +156,25 @@ cp -R firmware output/lib
 
 # list contents first
 echo ""
-echo "Initrd contents:"
+echo "initramfs contents:"
 cd output
 find .
 
 # create the ramdisk
 echo ""
-echo "Creating initrd..."
+echo "Creating initramfs..."
 find . | cpio -o -H newc > ../$OUTFILE
 cd ..
 
-# cleanup
-echo "Final cleanup..."
-rm -rf output
+# compress
+if [ -n "$CMPCMD" ]; then
+    echo "Compressing initramfs..."
+fi
+compress "$OUTFILE" "$OUTFILE_COMP"
 
-echo "Initrd created: $OUTFILE"
+# cleanup
+echo ""
+echo "Final cleanup..."
+rm -rf output "$OUTFILE"
+
+echo "Initramfs created: $OUTFILE_COMP"
