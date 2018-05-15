@@ -1,6 +1,7 @@
 firmware
 downloaded
 output
-initrd*.img
+initramfs*
+*.tar.gz
 
 

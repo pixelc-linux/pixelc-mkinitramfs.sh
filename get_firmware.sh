@@ -17,6 +17,11 @@ if [ -d "firmware" ]; then
     exit 0
 fi
 
+if [ ! -x "$(command -v tar)" ]; then
+    echo "Tar is not installed, exitting..."
+    exit 1
+fi
+
 if [ ! -d "downloaded/linux-firmware" ]; then
     if [ ! -x "$(command -v git)" ]; then
         echo "Git is not installed, exitting..."
@@ -58,14 +63,40 @@ get_google() {
 get_google "downloaded/$BCMDHD_NAME" "$BCMDHD_URL"
 get_google "downloaded/$BCMHCD_NAME" "$BCMHCD_URL"
 
-mkdir -p firmware/brcm
-mkdir -p firmware/nvidia/gm20b
-mkdir -p firmware/nvidia/tegra210
 
-# Broadcom fw
+make_tarball() {
+    echo "Creating firmware tarball: $1..."
+    rm -rf tarball
+    mkdir -p tarball/lib
+    cd tarball
+    cp -R ../firmware lib
+    tar czf "../$1.tar.gz" .
+    if [ $? -ne 0 ]; then
+        echo "Archiving firmware failed."
+        cd ..
+        rm -rf tarball firmware
+        exit 1
+    fi
+    cd ..
+    rm -rf tarball
+}
+
+mkdir -p firmware/brcm
+
+# Broadcom stuff not in linux-firmware
 cp "downloaded/$BCMDHD_NAME" firmware/brcm
 cp "downloaded/$BCMHCD_NAME" firmware/brcm
-cp downloaded/linux-firmware/brcm/brcmfmac4354* firmware/brcm
+cp downloaded/linux-firmware/brcm/brcmfmac4354*.txt firmware/brcm
+cp downloaded/linux-firmware/LICENCE.broadcom_bcm43xx firmware/LICENCE.broadcom_bcm4354
+
+# for installation next to full linux-firmware
+make_tarball firmware_brcm_extra_only
+
+# Present in linux-firmware
+cp downloaded/linux-firmware/brcm/brcmfmac4354*.bin firmware/brcm
+
+mkdir -p firmware/nvidia/gm20b
+mkdir -p firmware/nvidia/tegra210
 
 # Maxwell fw
 cp -R downloaded/linux-firmware/nvidia/gm20b/* firmware/nvidia/gm20b
@@ -76,8 +107,10 @@ cp downloaded/linux-firmware/nvidia/gm200/gr/sw_method_init.bin firmware/nvidia/
 # Tegra fw
 cp -R downloaded/linux-firmware/nvidia/tegra210/* firmware/nvidia/tegra210
 
-# licenses
-cp downloaded/linux-firmware/LICENCE.broadcom_bcm43xx firmware/LICENCE.broadcom_bcm4354
+# Nvidia license
 cp downloaded/linux-firmware/LICENCE.nvidia firmware
+
+# all firmware needed for the device
+make_tarball firmware_all
 
 echo "Done getting firmware."
