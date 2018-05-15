@@ -11,6 +11,8 @@ MOUNTOPTS="ro"
 INIT="/sbin/init"
 # compression
 COMPRESSION="lz4"
+# firmware archive
+FW_ARCHIVE="./firmware_all.tar.gz"
 
 # output file name
 OUTFILE="initramfs.cpio"
@@ -25,6 +27,7 @@ help() {
     echo "  -m PARAMS    the options passed to mount (default: $MOUNTOPTS)"
     echo "  -i INIT      the init program to launch (default: $INIT)"
     echo "  -c COMP      the compression format (default: $COMPRESSION)"
+    echo "  -f FIRMWARE  the path to a firmware archive (default: $FW_ARCHIVE)"
     echo ""
     echo "By default, rootfs is on /data (mmcblk0p7), not in any subdir."
     echo "Keep in mind that using a subdirectory might not always work right"
@@ -41,7 +44,7 @@ help() {
     echo "The choice of compression algorithmss is 'lz4', 'gz', 'xz', 'none'."
 }
 
-while getopts o:d:s:i:c:m:h OPT; do
+while getopts o:d:s:i:c:f:m:h OPT; do
     case $OPT in
         o) OUTFILE=$OPTARG ;;
         d) ROOTDEV=$OPTARG ;;
@@ -54,6 +57,7 @@ while getopts o:d:s:i:c:m:h OPT; do
         m) MOUNTOPTS=$OPTARG ;;
         i) INIT=$OPTARG ;;
         c) COMPRESSION=$OPTARG ;;
+        f) FW_ARCHIVE=$OPTARG ;;
         h) help; exit 0 ;;
         \?)
             echo "Unrecognized option: $OPTARG"
@@ -62,6 +66,11 @@ while getopts o:d:s:i:c:m:h OPT; do
         ;;
     esac
 done
+
+if [ ! -f "$FW_ARCHIVE" ]; then
+    echo "firmware archive does not exist, exitting..."
+    exit 1
+fi
 
 case $COMPRESSION in
     none)
@@ -117,13 +126,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# fetch firmware
-./get_firmware.sh
-if [ $? -ne 0 ]; then
-    echo "Failed getting firmware, exitting..."
-    exit 1
-fi
-
 # cleanup
 echo ""
 echo "Cleanup..."
@@ -151,8 +153,16 @@ EOF
 echo "Copying binaries..."
 cp skel/init downloaded/busybox output
 
-echo "Copying firmware..."
-cp -R firmware output/lib
+echo "Extracting firmware..."
+cd output
+tar xvf "../$FW_ARCHIVE"
+if [ $? -ne 0 ]; then
+    echo "Extracting firmware failed, exitting..."
+    cd ..
+    rm -rf output
+    exit 1
+fi
+cd ..
 
 # list contents first
 echo ""
