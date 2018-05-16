@@ -10,7 +10,7 @@ MOUNTOPTS="ro"
 # the init program
 INIT="/sbin/init"
 # compression
-COMPRESSION="lz4"
+COMPRESSION="gz"
 # firmware archive
 FW_ARCHIVE="./firmware_all.tar.gz"
 
@@ -41,7 +41,7 @@ help() {
     echo "filesystem is present. You might want to use this if you repartition"
     echo "your device or if you installed the OS into /system (mmdcblk0p4)."
     echo "Overriding -i is only for if your rootfs doesn't use /sbin/init."
-    echo "The choice of compression algorithmss is 'lz4', 'gz', 'xz', 'none'."
+    echo "The choice of compression algorithmss is 'gz', 'none'."
 }
 
 while getopts o:d:s:i:c:f:m:h OPT; do
@@ -97,9 +97,7 @@ esac
 
 compress() {
     case $COMPRESSION in
-        lz4) lz4c "$1" "$2"      ;;
         gz)  gzip -9 -c "$1" > "$2" ;;
-        xz)  xz -c "$1" > "$2"      ;;
         *) true ;;
     esac
     if [ $? -ne 0 ]; then
@@ -185,6 +183,9 @@ compress "$OUTFILE" "$OUTFILE_COMP"
 # cleanup
 echo ""
 echo "Final cleanup..."
-rm -rf output "$OUTFILE"
+rm -rf output
+if [ "$OUTFILE" != "$OUTFILE_COMP" ]; then
+    rm -f "$OUTFILE"
+fi
 
 echo "Initramfs created: $OUTFILE_COMP"
