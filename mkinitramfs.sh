@@ -2,10 +2,7 @@
 
 # root device
 ROOTDEV="mmcblk0p7"
-# directory on root device with the actual rootfs
-ROOTDIR="/"
 # mount options
-MOUNTOPTS_RW="rw,noatime,nodirtime,errors=panic"
 MOUNTOPTS="ro"
 # the init program
 INIT="/sbin/init"
@@ -23,8 +20,6 @@ help() {
     echo "  -h           print this message"
     echo "  -o FILENAME  write into FILENAME (uncompressed, default: $OUTFILE)"
     echo "  -d DEVICE    the partition containing rootfs (default: $ROOTDEV)"
-    echo "  -s PATH      the directory containing rootfs (default: $ROOTDIR)"
-    echo "  -m PARAMS    the options passed to mount (default: $MOUNTOPTS)"
     echo "  -i INIT      the init program to launch (default: $INIT)"
     echo "  -c COMP      the compression format (default: $COMPRESSION)"
     echo "  -f FIRMWARE  the path to a firmware archive (default: $FW_ARCHIVE)"
@@ -34,9 +29,6 @@ help() {
     echo "and is considered EXPERIMENTAL, so use at your own risk. It exists"
     echo "only to cover the case when you want to dual boot your system with"
     echo "Android."
-    echo "The -m option lets you alter the options with which the filesystem"
-    echo "is mounted. By default it's 'ro' but for subdir rootfs it has to be"
-    echo "read-write, so $MOUNTOPTS_RW is used."
     echo "The -d option allows you to choose the partition on which your root"
     echo "filesystem is present. You might want to use this if you repartition"
     echo "your device or if you installed the OS into /system (mmdcblk0p4)."
@@ -44,17 +36,10 @@ help() {
     echo "The choice of compression algorithmss is 'gz', 'none'."
 }
 
-while getopts o:d:s:i:c:f:m:h OPT; do
+while getopts o:d:i:c:f:h OPT; do
     case $OPT in
         o) OUTFILE=$OPTARG ;;
         d) ROOTDEV=$OPTARG ;;
-        s)
-            ROOTDIR=$OPTARG
-            if [ -n "$ROOTDIR" ] && [ "$ROOTDIR" != "/" ]; then
-                MOUNTOPTS="$MOUNTOPTS_RW"
-            fi
-        ;;
-        m) MOUNTOPTS=$OPTARG ;;
         i) INIT=$OPTARG ;;
         c) COMPRESSION=$OPTARG ;;
         f) FW_ARCHIVE=$OPTARG ;;
@@ -113,8 +98,7 @@ if [ -n "$CMPCMD" ] && [ ! -x "$(command -v $CMPCMD)" ]; then
     exit 1
 fi
 
-echo "Generating initramfs for rootfs in $ROOTDIR on partition" \
-     "$ROOTDEV (mounted with '$MOUNTOPTS') with init executable $INIT..."
+echo "Generating initramfs for rootfs on partition $ROOTDEV with init $INIT..."
 echo ""
 
 # fetch busybox
@@ -137,13 +121,11 @@ mkdir output/dev
 mkdir output/lib
 mkdir output/sys
 mkdir -p output/mnt/root
-mkdir -p output/mnt/data
 
 # config file
 echo "Generating config file..."
 cat << EOF >> output/conf
 export ROOTDEV="${ROOTDEV}"
-export ROOTDIR="${ROOTDIR}"
 export MOUNTOPTS="${MOUNTOPTS}"
 export INIT="${INIT}"
 EOF
