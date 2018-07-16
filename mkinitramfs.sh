@@ -23,6 +23,7 @@ help() {
     echo "  -i INIT      the init program to launch (default: $INIT)"
     echo "  -c COMP      the compression format (default: $COMPRESSION)"
     echo "  -f FIRMWARE  the path to a firmware archive (default: $FW_ARCHIVE)"
+    echo "  -m MOUNTOPTS the mount opts (default: $MOUNTOPTS)"
     echo ""
     echo "By default, rootfs is on /data (mmcblk0p7), not in any subdir."
     echo "Keep in mind that using a subdirectory might not always work right"
@@ -36,13 +37,14 @@ help() {
     echo "The choice of compression algorithmss is 'gz', 'none'."
 }
 
-while getopts o:d:i:c:f:h OPT; do
+while getopts o:d:i:c:f:m:h OPT; do
     case $OPT in
         o) OUTFILE=$OPTARG ;;
         d) ROOTDEV=$OPTARG ;;
         i) INIT=$OPTARG ;;
         c) COMPRESSION=$OPTARG ;;
         f) FW_ARCHIVE=$OPTARG ;;
+        m) MOUNTOPTS=$OPTARG ;;
         h) help; exit 0 ;;
         \?)
             echo "Unrecognized option: $OPTARG"
