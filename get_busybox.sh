@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BUSYBOX_DEB="http://ftp.debian.org/debian/pool/main/b/busybox/busybox-static_1.27.2-3_arm64.deb"
+BUSYBOX_DEB="http://ftp.debian.org/debian/pool/main/b/busybox/busybox-static_1.30.1-4_arm64.deb"
 
 mkdir -p downloaded
 
